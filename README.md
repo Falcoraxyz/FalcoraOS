@@ -42,8 +42,6 @@ Navigate the entire browser without lifting your hands from the keyboard.
 
 ## 📸 Screenshots
 
-*(Place your screenshots here in a `docs/` folder)*
-
 | **Split View** | **Single View** |
 |:---:|:---:|
 | ![Split View](docs/split-view-placeholder.png) | ![Single View](docs/single-view-placeholder.png) |
