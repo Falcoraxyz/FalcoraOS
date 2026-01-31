@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
+    <title>FalcoraOS</title>
+    <link rel="stylesheet" href="styles.css">
+    <base target="_blank">
+    <base target="_blank">
+</head>
+
+<body style="opacity: 0; transition: opacity 0.5s ease;">
+    <div id="app">
+        <!-- Background -->
+        <div id="background-layer">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="particles" id="particles-container"></div>
+        </div>
+
+        <!-- ====== TOP BAR SYSTEM ====== -->
+        <!-- 1. SENSOR (area kecil, trigger only) -->
+        <div id="top-sensor"></div>
+
+        <!-- 2. SAFE ZONE + BAR (area besar yang muncul bersama) -->
+        <div id="top-zone" class="zone-container">
+            <div id="top-bar">
+                <input type="text" id="url-input" placeholder="Search or Type URL..." spellcheck="false">
+                <div class="url-loading-bar"></div>
+                <div id="split-controls">
+                    <button id="split-v" title="Split Vertical">⬍</button>
+                    <button id="split-close" title="Close Active Split">✕</button>
+                </div>
+                <div id="ai-toggle-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+                        <path d="M12 6v6l4 2"></path>
+                    </svg>
+                </div>
+            </div>
+            <!-- Area kosong di bawah bar untuk safe zone -->
+            <div id="top-safe-area"></div>
+        </div>
+
+        <!-- ====== SPLIT CONTAINER ====== -->
+        <div id="split-container">
+            <div class="split-root" id="split-root">
+                <div class="split-view active" data-view-id="1">
+                    <div class="webview-wrapper">
+                        <div class="placeholder-view">
+                            <h2>FALCORA OS</h2>
+                            <p>System Ready</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== AI SIDEBAR ====== -->
+        <div id="ai-sidebar">
+            <h2>FALCORA AI</h2>
+            <div class="profile-wrapper">
+                <select id="profile-selector" class="profile-select">
+                    <option value="Work">💼 Work</option>
+                    <option value="Study">📚 Study</option>
+                    <option value="Shopping">🛍️ Shopping</option>
+                    <option value="Crypto">📈 Crypto</option>
+                    <option value="Research">🔬 Research</option>
+                    <option value="Academic">🎓 Academic</option>
+                    <option value="Personal">🏠 Personal</option>
+                </select>
+            </div>
+            <div class="ai-status">System Online. How can I assist you?</div>
+            <div id="chat-history"></div>
+            <div class="sidebar-input-area">
+                <input type="text" id="ai-input" placeholder="Ask AI or command...">
+            </div>
+        </div>
+
+        <!-- ====== BOTTOM BAR SYSTEM ====== -->
+        <!-- 1. SENSOR (area kecil tipis, trigger only) -->
+        <div id="bottom-sensor"></div>
+
+        <!-- 2. SAFE ZONE + BAR (area besar yang muncul bersama) -->
+        <div id="bottom-zone" class="zone-container">
+            <!-- Area kosong di atas bar untuk safe zone -->
+            <div id="bottom-safe-area"></div>
+            <div id="tabbar-wrapper">
+                <div id="tab-bar">
+                    <div class="add-tab-btn">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SETTINGS ====== -->
+        <div id="settings-hover-zone"></div>
+        <div id="settings-trigger">
+            <div class="gear-icon">⚙</div>
+        </div>
+        <div id="settings-panel">
+            <button id="close-settings">✕</button>
+            <div class="settings-header">
+                <h3>Keyboard Shortcuts</h3>
+            </div>
+            <div class="settings-content">
+                <div class="keyboard-visual">
+                    <div class="keyboard">
+                        <div class="row">
+                            <div class="key esc">Esc</div>
+                            <div class="key f">F1</div>
+                            <div class="key f">F2</div>
+                            <div class="key f">F3</div>
+                            <div class="key f">F4</div>
+                            <div class="key f">F5</div>
+                            <div class="key f">F6</div>
+                            <div class="key f">F7</div>
+                            <div class="key f">F8</div>
+                            <div class="key f">F9</div>
+                            <div class="key f">F10</div>
+                            <div class="key f">F11</div>
+                            <div class="key f">F12</div>
+                        </div>
+                        <div class="row">
+                            <div class="key">~</div>
+                            <div class="key">1</div>
+                            <div class="key">2</div>
+                            <div class="key">3</div>
+                            <div class="key">4</div>
+                            <div class="key">5</div>
+                            <div class="key">6</div>
+                            <div class="key">7</div>
+                            <div class="key">8</div>
+                            <div class="key">9</div>
+                            <div class="key">0</div>
+                            <div class="key">-</div>
+                            <div class="key">=</div>
+                            <div class="key wide">Backspace</div>
+                        </div>
+                        <div class="row">
+                            <div class="key wide">Tab</div>
+                            <div class="key">Q</div>
+                            <div class="key highlight">W</div>
+                            <div class="key">E</div>
+                            <div class="key">R</div>
+                            <div class="key highlight">T</div>
+                            <div class="key">Y</div>
+                            <div class="key">U</div>
+                            <div class="key">I</div>
+                            <div class="key">O</div>
+                            <div class="key">P</div>
+                            <div class="key">[</div>
+                            <div class="key">]</div>
+                            <div class="key">\</div>
+                        </div>
+                        <div class="row">
+                            <div class="key wide">Caps</div>
+                            <div class="key">A</div>
+                            <div class="key">S</div>
+                            <div class="key">D</div>
+                            <div class="key">F</div>
+                            <div class="key">G</div>
+                            <div class="key">H</div>
+                            <div class="key">J</div>
+                            <div class="key">K</div>
+                            <div class="key highlight">L</div>
+                            <div class="key">;</div>
+                            <div class="key">'</div>
+                            <div class="key wide">Enter</div>
+                        </div>
+                        <div class="row">
+                            <div class="key highlight wide">Shift</div>
+                            <div class="key">Z</div>
+                            <div class="key highlight">X</div>
+                            <div class="key">C</div>
+                            <div class="key">V</div>
+                            <div class="key highlight">B</div>
+                            <div class="key">N</div>
+                            <div class="key">M</div>
+                            <div class="key">,</div>
+                            <div class="key">.</div>
+                            <div class="key">/</div>
+                            <div class="key wide">Shift</div>
+                        </div>
+                        <div class="row" style="margin-top: 4px;">
+                            <div class="key highlight ctrl">Ctrl</div>
+                            <div class="key">Win</div>
+                            <div class="key">Alt</div>
+                            <div class="key key-space">Space</div>
+                            <div class="key highlight">Alt</div>
+                            <div class="key highlight">B</div>
+                            <div class="key">Menu</div>
+                            <div class="key ctrl">Ctrl</div>
+                        </div>
+                        <div class="row" style="margin-top: 4px; justify-content: flex-end;">
+                            <div class="key highlight arrow">←</div>
+                            <div class="key highlight arrow">→</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="shortcut-legend">
+                    <div class="legend-item">
+                        <div class="keys"><span class="k">Ctrl</span> + <span class="k">T</span></div>
+                        <div class="desc">New Tab</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="keys"><span class="k">Ctrl</span> + <span class="k">X</span></div>
+                        <div class="desc">Close Tab</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="keys"><span class="k">Ctrl</span> + <span class="k">←</span> / <span class="k">→</span></div>
+                        <div class="desc">Switch Tab</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="keys"><span class="k">Ctrl</span> + <span class="k">\</span></div>
+                        <div class="desc">Split Vertical</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="keys"><span class="k">Ctrl</span> + <span class="k">W</span></div>
+                        <div class="desc">Close Split</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="keys"><span class="k">Ctrl</span> + <span class="k">L</span></div>
+                        <div class="desc">Focus URL</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="keys"><span class="k">Ctrl</span> + <span class="k">B</span></div>
+                        <div class="desc">Toggle AI</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="node_modules/popmotion/dist/popmotion.min.js"></script>
+    <script src="utils/animations.js"></script>
+    <script src="renderer.js"></script>
+</body>
+
+</html>

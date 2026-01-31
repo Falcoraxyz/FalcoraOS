@@ -1,0 +1,78 @@
+
+> falcoraos@1.0.0 build:win
+> electron-builder --win
+
+  • electron-builder  version=26.4.0 os=10.0.26200
+  • loaded configuration  file=package.json ("build" field)
+  • effective config  config=directories:
+  output: dist
+  buildResources: build
+appId: com.falcoraos.browser
+productName: FalcoraOS Browser
+files:
+  - filter:
+      - main.js
+      - index.html
+      - styles.css
+      - renderer.js
+      - preload.js
+      - utils/**/*
+      - node_modules/**/*
+      - package.json
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
+    - target: portable
+      arch:
+        - x64
+  icon: assets/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: FalcoraOS Browser
+  signAndEditExecutable: false
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  icon: assets/icon.icns
+  category: public.app-category.productivity
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+  icon: assets/icon.png
+  category: Network
+
+  ⨯ Invalid configuration object. electron-builder 26.4.0 has been initialized using a configuration object that does not match the API schema.
+ - configuration.nsis has an unknown property 'signAndEditExecutable'. These properties are valid:
+   object { allowElevation?, allowToChangeInstallationDirectory?, artifactName?, buildUniversalInstaller?, createDesktopShortcut?, createStartMenuShortcut?, customNsisBinary?, customNsisResources?, deleteAppDataOnUninstall?, differentialPackage?, displayLanguageSelector?, guid?, include?, installerHeader?, installerHeaderIcon?, installerIcon?, installerLanguages?, installerSidebar?, language?, license?, menuCategory?, multiLanguageInstaller?, oneClick?, packElevateHelper?, perMachine?, preCompressedFileExtensions?, publish?, removeDefaultUninstallWelcomePage?, runAfterFinish?, script?, selectPerMachineByDefault?, shortcutName?, unicode?, uninstallDisplayName?, uninstallUrlHelp?, uninstallUrlInfoAbout?, uninstallUrlReadme?, uninstallUrlUpdateInfo?, uninstallerIcon?, uninstallerSidebar?, useZip?, warningsAsErrors? }
+     How to fix:
+     1. Open https://www.electron.build/nsis
+     2. Search the option name on the page (or type in into Search to find across the docs).
+       * Not found? The option was deprecated or not exists (check spelling).
+       * Found? Check that the option in the appropriate place. e.g. "title" only in the "dmg", not in the root.
+  failedTask=build stackTrace=ValidationError: Invalid configuration object. electron-builder 26.4.0 has been initialized using a configuration object that does not match the API schema.
+ - configuration.nsis has an unknown property 'signAndEditExecutable'. These properties are valid:
+   object { allowElevation?, allowToChangeInstallationDirectory?, artifactName?, buildUniversalInstaller?, createDesktopShortcut?, createStartMenuShortcut?, customNsisBinary?, customNsisResources?, deleteAppDataOnUninstall?, differentialPackage?, displayLanguageSelector?, guid?, include?, installerHeader?, installerHeaderIcon?, installerIcon?, installerLanguages?, installerSidebar?, language?, license?, menuCategory?, multiLanguageInstaller?, oneClick?, packElevateHelper?, perMachine?, preCompressedFileExtensions?, publish?, removeDefaultUninstallWelcomePage?, runAfterFinish?, script?, selectPerMachineByDefault?, shortcutName?, unicode?, uninstallDisplayName?, uninstallUrlHelp?, uninstallUrlInfoAbout?, uninstallUrlReadme?, uninstallUrlUpdateInfo?, uninstallerIcon?, uninstallerSidebar?, useZip?, warningsAsErrors? }
+     How to fix:
+     1. Open https://www.electron.build/nsis
+     2. Search the option name on the page (or type in into Search to find across the docs).
+       * Not found? The option was deprecated or not exists (check spelling).
+       * Found? Check that the option in the appropriate place. e.g. "title" only in the "dmg", not in the root.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               at validate (C:\Users\epic2\OneDrive\Desktop\FalcoraOS\node_modules\@develar\schema-utils\dist\validate.js:86:11)
+    at validateConfiguration (C:\Users\epic2\OneDrive\Desktop\FalcoraOS\node_modules\app-builder-lib\src\util\config\config.ts:239:3)
+    at Packager.validateConfig (C:\Users\epic2\OneDrive\Desktop\FalcoraOS\node_modules\app-builder-lib\src\packager.ts:398:5)
+    at Packager.build (C:\Users\epic2\OneDrive\Desktop\FalcoraOS\node_modules\app-builder-lib\src\packager.ts:406:5)
+    at executeFinally (C:\Users\epic2\OneDrive\Desktop\FalcoraOS\node_modules\builder-util\src\promise.ts:12:14)

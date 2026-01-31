@@ -1,0 +1,105 @@
+{
+  "name": "falcoraos",
+  "version": "1.0.0",
+  "description": "FalcoraOS Browser - Modern browser with AI integration and split-screen functionality",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "dist": "electron-builder --publish=never",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "browser",
+    "electron",
+    "ai",
+    "split-screen"
+  ],
+  "author": "FalcoraOS Team",
+  "license": "MIT",
+  "type": "commonjs",
+  "build": {
+    "appId": "com.falcoraos.browser",
+    "productName": "FalcoraOS Browser",
+    "directories": {
+      "output": "dist_v2"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "styles.css",
+      "renderer.js",
+      "preload.js",
+      "utils/**/*",
+      "ai/**/*",
+      "package.json"
+    ],
+    "win": {
+      "forceCodeSigning": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FalcoraOS Browser"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "Network"
+    }
+  },
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^23.6.0"
+  },
+  "dependencies": {
+    "popmotion": "^11.0.5"
+  }
+}
