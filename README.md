@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/icon.png" alt="FalcoraOS Logo" width="120" height="120">
+
 # FalcoraOS Browser
 
 **A Modern, AI-Integrated Browser for Power Users**
