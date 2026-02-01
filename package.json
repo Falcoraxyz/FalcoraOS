@@ -33,6 +33,7 @@
       "styles.css",
       "renderer.js",
       "preload.js",
+      "shim.js",
       "utils/**/*",
       "ai/**/*",
       "package.json"
