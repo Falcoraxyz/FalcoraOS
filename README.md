@@ -99,7 +99,15 @@ Navigate the entire browser without lifting your hands from the keyboard.
 | <kbd>Ctrl</kbd> + <kbd>W</kbd> | Close Split / Tab |
 | <kbd>Ctrl</kbd> + <kbd>L</kbd> | Focus Address Bar |
 | <kbd>Ctrl</kbd> + <kbd>B</kbd> | Toggle AI Sidebar |
+| <kbd>F11</kbd> | Toggle Fullscreen |
+| <kbd>Alt</kbd> + <kbd>←</kbd> | Go Back |
+| <kbd>Alt</kbd> + <kbd>→</kbd> | Go Forward |
+| <kbd>Ctrl</kbd> + <kbd>R</kbd> | Reload Page |
+| <kbd>Ctrl</kbd> + <kbd>Q</kbd> | Quit Application |
 | <kbd>F12</kbd> | Toggle Developer Tools |
+
+### 🎥 Embedded Fullscreen
+FalcoraOS intelligently handles fullscreen video (like YouTube). Instead of taking over your entire monitor, videos maximize *within* their split-pane, allowing you to keep multitasking.
 
 ---
 

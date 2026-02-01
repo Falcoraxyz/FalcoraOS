@@ -48,8 +48,13 @@ body {
 }
 
 @keyframes fadeInBody {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Background */
@@ -171,6 +176,10 @@ body {
     box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
 }
 
+body.sidebar-open #top-sensor {
+    left: calc(50% - 180px);
+}
+
 #top-zone {
     position: fixed;
     top: 0;
@@ -193,6 +202,15 @@ body {
     opacity: 1;
     pointer-events: auto;
     transform: translateX(-50%) translateY(0);
+}
+
+/* Responsive adjustment when sidebar is open */
+body.sidebar-open #top-zone {
+    left: calc(50% - 180px);
+    /* Shift center left by half sidebar width (360/2) */
+    max-width: calc(100% - 400px);
+    /* Constrain width to avoid overlap */
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 #top-safe-area {
@@ -320,7 +338,7 @@ body {
 #url-input {
     flex: 1;
     min-width: 200px;
-    max-width: 400px;
+    /* max-width removed to allow filling space */
     height: 100%;
     background: transparent;
     border: none;
@@ -440,8 +458,8 @@ body {
     contain: layout style paint;
     will-change: flex-basis;
     transition: flex 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.2s ease-out,
-                border-color 0.3s ease;
+        opacity 0.2s ease-out,
+        border-color 0.3s ease;
 }
 
 .split-view.active {
@@ -453,7 +471,8 @@ body {
     flex: 1;
     position: relative;
     overflow: hidden;
-    background: #0B0B12; /* Dark background to prevent white flash */
+    background: #0B0B12;
+    /* Dark background to prevent white flash */
 }
 
 webview {
@@ -463,11 +482,13 @@ webview {
     width: 100%;
     height: 100%;
     border: none;
-    background: #0B0B12 !important; /* Dark background, !important to override */
+    background: #0B0B12 !important;
+    /* Dark background, !important to override */
     /* Strict containment untuk isolate webview dari DOM changes */
     contain: strict;
     will-change: transform;
-    transition: opacity 0.3s ease; /* Smooth fade in */
+    transition: opacity 0.3s ease;
+    /* Smooth fade in */
 }
 
 /* Loading indicator for webview */
@@ -504,7 +525,9 @@ webview {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .placeholder-view {
@@ -668,7 +691,8 @@ body.resizing-vertical webview {
 }
 
 .split-container-nested.vertical {
-    flex-direction: row; /* Force horizontal */
+    flex-direction: row;
+    /* Force horizontal */
 }
 
 /* ============================= */
@@ -977,15 +1001,15 @@ body.resizing-vertical webview {
 }
 
 .settings-header {
-    position: absolute;
-    top: 30px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
+    width: 100%;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
 .settings-header h3 {
@@ -1027,12 +1051,14 @@ body.resizing-vertical webview {
 
 .settings-content {
     display: flex;
-    gap: 50px;
+    gap: 40px;
     align-items: flex-start;
     flex-wrap: wrap;
     justify-content: center;
-    margin-top: 60px;
-    padding: 20px;
+    margin-top: 20px;
+    padding: 0 20px 20px 20px;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .keyboard-visual {
@@ -1040,7 +1066,7 @@ body.resizing-vertical webview {
     border-radius: 24px;
     padding: 30px;
     border: 1px solid rgba(168, 85, 247, 0.1);
-    box-shadow: 
+    box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.5),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
@@ -1069,7 +1095,7 @@ body.resizing-vertical webview {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 
+    box-shadow:
         0 2px 4px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.2s ease;
@@ -1087,7 +1113,7 @@ body.resizing-vertical webview {
     background: rgba(168, 85, 247, 0.3);
     border-color: #a855f7;
     color: #fff;
-    box-shadow: 
+    box-shadow:
         0 0 10px rgba(168, 85, 247, 0.5),
         0 0 20px rgba(168, 85, 247, 0.3),
         0 0 30px rgba(168, 85, 247, 0.1),
@@ -1097,14 +1123,15 @@ body.resizing-vertical webview {
 
 @keyframes glow {
     from {
-        box-shadow: 
+        box-shadow:
             0 0 10px rgba(168, 85, 247, 0.5),
             0 0 20px rgba(168, 85, 247, 0.3),
             0 0 30px rgba(168, 85, 247, 0.1),
             inset 0 0 10px rgba(168, 85, 247, 0.2);
     }
+
     to {
-        box-shadow: 
+        box-shadow:
             0 0 15px rgba(168, 85, 247, 0.8),
             0 0 30px rgba(168, 85, 247, 0.5),
             0 0 45px rgba(168, 85, 247, 0.3),
@@ -1117,28 +1144,30 @@ body.resizing-vertical webview {
 }
 
 .shortcut-legend {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-width: 280px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    min-width: 600px;
 }
 
 .legend-item {
-    padding: 14px 18px;
+    padding: 10px 16px;
     background: rgba(255, 255, 255, 0.03);
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid rgba(168, 85, 247, 0.15);
     transition: all 0.3s ease;
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .legend-item:hover {
     background: rgba(168, 85, 247, 0.1);
     border-color: rgba(168, 85, 247, 0.4);
-    transform: translateX(5px);
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .keys {
@@ -1152,18 +1181,16 @@ body.resizing-vertical webview {
 }
 
 .k {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.1));
-    border: 1px solid rgba(168, 85, 247, 0.5);
-    padding: 4px 10px;
-    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(168, 85, 247, 0.05));
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    padding: 2px 8px;
+    border-radius: 5px;
     color: #e9d5ff;
     font-weight: 700;
-    box-shadow: 
-        0 2px 8px rgba(168, 85, 247, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-    min-width: 30px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    min-width: 24px;
     text-align: center;
+    font-size: 13px;
 }
 
 .desc {
@@ -1286,34 +1313,34 @@ body.resizing-vertical {
         min-width: 500px;
         max-width: 700px;
     }
-    
+
     #top-bar {
         max-width: 700px;
     }
-    
+
     #bottom-zone {
         min-width: 400px;
         max-width: 600px;
     }
-    
+
     #ai-sidebar {
         width: 320px;
     }
-    
+
     .keyboard-visual {
         padding: 20px;
     }
-    
+
     .key {
         width: 32px;
         height: 32px;
         font-size: 11px;
     }
-    
+
     .key.wide {
         width: 60px;
     }
-    
+
     .key-space {
         width: 180px;
     }
@@ -1324,92 +1351,92 @@ body.resizing-vertical {
     html {
         font-size: 12px;
     }
-    
+
     #top-zone {
         min-width: 90vw;
         max-width: 95vw;
         height: 100px;
     }
-    
+
     #top-bar {
         max-width: 100%;
         height: 44px;
         padding: 0 12px;
     }
-    
+
     #url-input {
         font-size: 14px;
     }
-    
+
     #bottom-zone {
         min-width: 90vw;
         max-width: 95vw;
         height: 120px;
     }
-    
+
     #tabbar-wrapper {
         padding: 10px 15px 15px 15px;
     }
-    
+
     .tab {
         width: 36px;
         height: 36px;
     }
-    
+
     .tab-icon {
         width: 18px;
         height: 18px;
     }
-    
+
     #ai-sidebar {
         width: 100%;
         right: -100%;
     }
-    
+
     #ai-sidebar.open {
         transform: translateX(-100%);
     }
-    
+
     #settings-panel {
         padding: 15px;
     }
-    
+
     .settings-content {
         flex-direction: column;
         gap: 30px;
         margin-top: 80px;
     }
-    
+
     .keyboard-visual {
         padding: 15px;
         transform: scale(0.85);
         transform-origin: center top;
     }
-    
+
     .shortcut-legend {
         min-width: auto;
         width: 100%;
     }
-    
+
     .legend-item {
         padding: 12px 14px;
     }
-    
+
     #close-settings {
         top: 15px;
         right: 15px;
         width: 40px;
         height: 40px;
     }
-    
+
     .settings-header h3 {
         font-size: 22px;
     }
-    
+
     .split-view {
         min-height: 80px;
     }
-    
+
     .webview-wrapper {
         min-height: 80px;
     }
@@ -1420,59 +1447,59 @@ body.resizing-vertical {
     html {
         font-size: 11px;
     }
-    
+
     #top-zone {
         min-width: 95vw;
         height: 90px;
     }
-    
+
     #top-bar {
         height: 40px;
     }
-    
+
     #split-controls {
         gap: 4px;
     }
-    
+
     #split-controls button {
         width: 28px;
         height: 28px;
     }
-    
+
     #ai-toggle-btn {
         width: 28px;
         height: 28px;
     }
-    
+
     .tab {
         width: 32px;
         height: 32px;
     }
-    
+
     .add-tab-btn {
         width: 32px;
         height: 32px;
     }
-    
+
     .keyboard-visual {
         transform: scale(0.7);
         padding: 10px;
     }
-    
+
     .key {
         width: 28px;
         height: 28px;
         font-size: 10px;
     }
-    
+
     .key.wide {
         width: 50px;
     }
-    
+
     .key-space {
         width: 140px;
     }
-    
+
     .settings-content {
         margin-top: 60px;
     }
@@ -1483,40 +1510,40 @@ body.resizing-vertical {
     html {
         font-size: 16px;
     }
-    
+
     #top-zone {
         min-width: 800px;
         max-width: 1000px;
     }
-    
+
     #top-bar {
         max-width: 1000px;
         height: 56px;
     }
-    
+
     #bottom-zone {
         min-width: 600px;
         max-width: 800px;
     }
-    
+
     #ai-sidebar {
         width: 400px;
     }
-    
+
     .keyboard-visual {
         padding: 40px;
     }
-    
+
     .key {
         width: 42px;
         height: 42px;
         font-size: 13px;
     }
-    
+
     .key.wide {
         width: 80px;
     }
-    
+
     .key-space {
         width: 280px;
     }
@@ -1527,16 +1554,16 @@ body.resizing-vertical {
     html {
         font-size: 18px;
     }
-    
+
     #top-zone {
         min-width: 900px;
         max-width: 1200px;
     }
-    
+
     #top-bar {
         max-width: 1200px;
     }
-    
+
     #ai-sidebar {
         width: 450px;
     }
@@ -1547,15 +1574,15 @@ body.resizing-vertical {
     #top-zone {
         height: 100px;
     }
-    
+
     #top-safe-area {
         height: 50px;
     }
-    
+
     #bottom-zone {
         height: 120px;
     }
-    
+
     #bottom-safe-area {
         height: 40px;
     }
@@ -1566,20 +1593,20 @@ body.resizing-vertical {
     #top-zone {
         height: 80px;
     }
-    
+
     #top-bar {
         height: 40px;
     }
-    
+
     #bottom-zone {
         height: 100px;
     }
-    
+
     .settings-content {
         flex-direction: row;
         flex-wrap: nowrap;
     }
-    
+
     .keyboard-visual {
         transform: scale(0.75);
     }

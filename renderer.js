@@ -14,26 +14,26 @@ class TabSystem {
 
     createTab() {
         const tabId = 'tab-' + Date.now() + '-' + ++this.tabCounter;
-        
+
         const newTab = {
             id: tabId,
             splitState: new SplitState(),
             webviewCache: new WebviewCache()
         };
-        
+
         // Add initial view
         newTab.splitState.addView();
-        
+
         this.tabs.push(newTab);
         this.activeTabId = tabId;
-        
+
         return newTab;
     }
 
     switchTab(tabId) {
         const tab = this.tabs.find(t => t.id === tabId);
         if (!tab) return null;
-        
+
         this.activeTabId = tabId;
         return tab;
     }
@@ -41,18 +41,18 @@ class TabSystem {
     closeTab(tabId) {
         const index = this.tabs.findIndex(t => t.id === tabId);
         if (index === -1 || this.tabs.length <= 1) return false;
-        
+
         // Cleanup webviews
         this.tabs[index].webviewCache.clear();
-        
+
         this.tabs.splice(index, 1);
-        
+
         // Switch to another tab
         if (this.activeTabId === tabId) {
             const newIndex = Math.min(index, this.tabs.length - 1);
             this.activeTabId = this.tabs[newIndex].id;
         }
-        
+
         return true;
     }
 
@@ -82,44 +82,44 @@ class SplitState {
 
     addView(url = null) {
         if (this.views.length >= 4) return null;
-        
+
         const newView = {
             id: `view-${++this.viewCounter}`,
             url: url,
             title: url ? 'Loading...' : 'New Tab',
             flexBasis: this.calculateNewFlexBasis()
         };
-        
+
         this.views.push(newView);
         this.rebalanceFlexBasis();
-        
+
         if (!this.activeViewId) {
             this.activeViewId = newView.id;
         }
-        
+
         return newView;
     }
 
     removeView(viewId) {
         const index = this.views.findIndex(v => v.id === viewId);
         if (index === -1 || this.views.length <= 1) return false;
-        
+
         this.views.splice(index, 1);
         this.rebalanceFlexBasis();
-        
+
         // Update active view
         if (this.activeViewId === viewId) {
             const newIndex = Math.min(index, this.views.length - 1);
             this.activeViewId = this.views[newIndex]?.id || null;
         }
-        
+
         return true;
     }
 
     resizeView(viewId, newFlexBasis) {
         const view = this.views.find(v => v.id === viewId);
         if (!view) return false;
-        
+
         view.flexBasis = Math.max(10, Math.min(80, newFlexBasis));
         return true;
     }
@@ -140,7 +140,7 @@ class SplitState {
     rebalanceFlexBasis() {
         const count = this.views.length;
         if (count === 0) return;
-        
+
         const equalBasis = 100 / count;
         this.views.forEach(view => {
             view.flexBasis = equalBasis;
@@ -149,7 +149,7 @@ class SplitState {
 
     getSnapPoints() {
         const count = this.views.length;
-        switch(count) {
+        switch (count) {
             case 2: return [50];
             case 3: return [33.33, 66.66];
             case 4: return [25, 50, 75];
@@ -175,14 +175,14 @@ class WebviewCache {
             evictions: 0,
             created: 0
         };
-        
+
         // Memory pressure handling
         this.setupMemoryPressureHandler();
     }
 
     get(viewId, url) {
         let entry = this.cache.get(viewId);
-        
+
         if (entry) {
             // Cache hit - update access order
             this.updateAccessOrder(viewId);
@@ -192,21 +192,21 @@ class WebviewCache {
             // Cache miss - create new
             this.stats.misses++;
             console.log(`Cache MISS for ${viewId} - creating new webview`);
-            
+
             // Evict oldest if at capacity
             if (this.cache.size >= this.maxSize) {
                 this.evictLRU();
             }
-            
+
             entry = this.createWebview(url, viewId);
             this.cache.set(viewId, entry);
             this.accessOrder.push(viewId);
             this.stats.created++;
         }
-        
+
         return entry;
     }
-    
+
     updateAccessOrder(viewId) {
         const index = this.accessOrder.indexOf(viewId);
         if (index > -1) {
@@ -214,16 +214,16 @@ class WebviewCache {
         }
         this.accessOrder.push(viewId);
     }
-    
+
     evictLRU() {
         if (this.accessOrder.length === 0) return;
-        
+
         const oldestViewId = this.accessOrder.shift();
         const webview = this.cache.get(oldestViewId);
-        
+
         if (webview) {
             console.log(`Evicting LRU webview: ${oldestViewId}`);
-            
+
             // Only evict if not currently visible
             if (!webview.parentElement) {
                 this.performCleanup(oldestViewId, webview);
@@ -234,7 +234,7 @@ class WebviewCache {
             }
         }
     }
-    
+
     performCleanup(viewId, webview) {
         try {
             // Only stop if webview is attached to DOM and ready
@@ -246,17 +246,17 @@ class WebviewCache {
                     console.log(`Could not stop webview ${viewId}:`, stopError.message);
                 }
             }
-            
+
             // Clear src to release resources (safe operation)
             try {
                 webview.src = 'about:blank';
             } catch (srcError) {
                 console.log(`Could not clear src for webview ${viewId}:`, srcError.message);
             }
-            
+
             // Remove from cache
             this.cache.delete(viewId);
-            
+
             // Remove from DOM if still attached
             if (webview.parentElement) {
                 try {
@@ -265,13 +265,13 @@ class WebviewCache {
                     console.log(`Could not remove webview ${viewId} from DOM:`, domError.message);
                 }
             }
-            
+
             console.log(`Cleaned up webview: ${viewId}`);
         } catch (e) {
             console.error(`Error cleaning up webview ${viewId}:`, e);
         }
     }
-    
+
     setupMemoryPressureHandler() {
         // Listen for memory pressure events if available
         if (typeof process !== 'undefined' && process.memoryUsage) {
@@ -279,9 +279,9 @@ class WebviewCache {
                 const usage = process.memoryUsage();
                 const heapUsedMB = Math.round(usage.heapUsed / 1024 / 1024);
                 const heapTotalMB = Math.round(usage.heapTotal / 1024 / 1024);
-                
+
                 console.log(`Memory usage: ${heapUsedMB}MB / ${heapTotalMB}MB (RSS: ${Math.round(usage.rss / 1024 / 1024)}MB)`);
-                
+
                 // Aggressive cleanup if memory usage is high (>500MB)
                 if (heapUsedMB > 500) {
                     console.warn('High memory usage detected - performing aggressive cleanup');
@@ -290,19 +290,19 @@ class WebviewCache {
             }, 30000); // Check every 30 seconds
         }
     }
-    
+
     aggressiveCleanup() {
         // Keep only visible webviews
         const visibleViewIds = [];
-        
+
         this.cache.forEach((webview, viewId) => {
             if (webview.parentElement) {
                 visibleViewIds.push(viewId);
             }
         });
-        
+
         console.log(`Aggressive cleanup: keeping ${visibleViewIds.length} visible webviews`);
-        
+
         // Remove all non-visible webviews
         this.cache.forEach((webview, viewId) => {
             if (!visibleViewIds.includes(viewId)) {
@@ -310,17 +310,17 @@ class WebviewCache {
                 this.stats.evictions++;
             }
         });
-        
+
         // Update access order
         this.accessOrder = visibleViewIds;
-        
+
         // Trigger garbage collection hint
         if (global.gc) {
             console.log('Triggering garbage collection');
             global.gc();
         }
     }
-    
+
     getStats() {
         return {
             ...this.stats,
@@ -332,32 +332,58 @@ class WebviewCache {
 
     createWebview(url, viewId) {
         console.log('Creating webview for:', url, 'viewId:', viewId);
-        
+
         const wv = document.createElement('webview');
-        wv.src = url;
+
+        // 1. Set ID and Styles
         wv.dataset.viewId = viewId;
         // Set dark background to prevent white flash
         wv.style.cssText = 'width: 100%; height: 100%; border: none; background: #0B0B12 !important;';
-        
+
+        // 2. Set Attributes (Must be BEFORE navigation)
         // Enable node integration if needed
         wv.setAttribute('nodeintegration', 'false');
-        wv.setAttribute('webpreferences', 'contextIsolation=true, allowRunningInsecureContent=yes');
-        
+        wv.setAttribute('webpreferences', 'contextIsolation=false, allowRunningInsecureContent=yes');
+        wv.setAttribute('allowfullscreen', 'true'); // Required for API presence, which we override
+
+        // 3. Set Preload (Manual Injection Strategy)
+        // We do NOT use setAttribute('preload') because it is proving flaky with local paths.
+        // Instead, we inject the content directly on load.
+
+        // 4. Attach Listeners
         // Set background color before page loads
         wv.addEventListener('did-start-loading', () => {
             console.log('did-start-loading for:', viewId);
             wv.style.background = '#0B0B12';
         });
-        
+
+        wv.addEventListener('dom-ready', () => {
+            console.log('Webview dom-ready for:', viewId);
+
+            // Inject Shim Content
+            if (window.electronAPI && window.electronAPI.shimContent) {
+                console.log('Injecting Shim Content...');
+                wv.executeJavaScript(window.electronAPI.shimContent)
+                    .then(() => console.log('Shim Injected Successfully'))
+                    .catch(e => console.error('Shim Injection Failed:', e));
+            } else {
+                console.error('CRITICAL: Shim content missing');
+            }
+        });
+
+        // Forward console logs from guest to host for debugging
+        wv.addEventListener('console-message', (e) => {
+            console.log(`[Guest ${viewId}]:`, e.message);
+        });
+
         wv.addEventListener('did-stop-loading', () => {
             console.log('did-stop-loading for:', viewId);
             wv.style.background = 'transparent';
         });
-        
-        wv.addEventListener('dom-ready', () => {
-            console.log('Webview dom-ready for:', viewId);
-        });
-        
+
+        // 5. Trigger Navigation (LAST)
+        wv.src = url;
+
         // Inject custom scrollbar
         const scrollbarCSS = `
             ::-webkit-scrollbar { width: 3px !important; height: 3px !important; }
@@ -365,16 +391,16 @@ class WebviewCache {
             ::-webkit-scrollbar-thumb { background: #000 !important; border-radius: 0 !important; }
             * { scrollbar-width: thin !important; scrollbar-color: #000 transparent !important; }
         `;
-        
+
         wv.addEventListener('dom-ready', () => {
             console.log('Webview dom-ready for:', viewId);
-            try { 
-                wv.insertCSS(scrollbarCSS); 
-            } catch(e) {
+            try {
+                wv.insertCSS(scrollbarCSS);
+            } catch (e) {
                 console.error('Error inserting CSS:', e);
             }
         });
-        
+
         wv.addEventListener('did-navigate', (e) => {
             console.log('Webview navigated to:', e.url);
             const tab = tabSystem.getActiveTab();
@@ -391,13 +417,13 @@ class WebviewCache {
                 updateTabIcon(tab.id, e.url);
             }
             setTimeout(() => {
-                try { wv.insertCSS(scrollbarCSS); } catch(e) {}
+                try { wv.insertCSS(scrollbarCSS); } catch (e) { }
             }, 100);
         });
-        
+
         wv.addEventListener('did-fail-load', (e) => {
             console.error('Webview failed to load:', e);
-            
+
             // Only handle main frame errors, not sub-resources
             if (e.isMainFrame) {
                 const errorMessages = {
@@ -425,13 +451,13 @@ class WebviewCache {
                     '-31': 'The request was blocked by security policy.',
                     '-100': 'The page could not be loaded. Please check your connection.'
                 };
-                
+
                 const errorCode = e.errorCode || -100;
                 const errorMessage = errorMessages[errorCode] || `Failed to load page (Error ${errorCode})`;
-                
+
                 // Show notification
                 showNotification('Failed to load page: ' + errorMessage);
-                
+
                 // Show error overlay in the webview
                 const errorScript = `
                     (function() {
@@ -464,17 +490,51 @@ class WebviewCache {
                         };
                     })();
                 `;
-                
+
                 wv.executeJavaScript(errorScript).catch(err => {
                     console.error('Error showing error page:', err);
                 });
             }
         });
-        
+
         wv.addEventListener('console-message', (e) => {
             console.log('Webview console:', e.message);
         });
-        
+
+        // Keyboard Shortcuts for Webview
+        wv.addEventListener('before-input-event', (event, input) => {
+            if (input.type !== 'keyDown') return;
+
+            console.log('Webview Key Event:', input.key, 'Alt:', input.alt, 'Ctrl:', input.control);
+
+            // Back: Alt + Left
+            if (input.key === 'ArrowLeft' && input.alt) {
+                console.log('Shortcut Triggered: Back');
+                if (wv.canGoBack()) {
+                    wv.goBack();
+                    event.preventDefault();
+                } else {
+                    console.log('Cannot go back');
+                }
+            }
+            // Forward: Alt + Right
+            else if (input.key === 'ArrowRight' && input.alt) {
+                console.log('Shortcut Triggered: Forward');
+                if (wv.canGoForward()) {
+                    wv.goForward();
+                    event.preventDefault();
+                } else {
+                    console.log('Cannot go forward');
+                }
+            }
+            // Quit: Ctrl + Q
+            else if ((input.key === 'q' || input.key === 'Q') && input.control) {
+                console.log('Shortcut Triggered: Quit');
+                window.electronAPI.quitApp();
+                event.preventDefault();
+            }
+        });
+
         return wv;
     }
 
@@ -482,7 +542,7 @@ class WebviewCache {
         const entry = this.cache.get(viewId);
         if (entry) {
             this.performCleanup(viewId, entry);
-            
+
             // Remove from access order
             const index = this.accessOrder.indexOf(viewId);
             if (index > -1) {
@@ -555,26 +615,26 @@ class FLIPAnimator {
             console.warn('Easing not available for layout change, skipping animation');
             return;
         }
-        
+
         const lastRects = this.captureRects(views.map(v => v.element));
-        
+
         views.forEach((view, i) => {
             const first = firstRects.find(r => r.element === view.element);
             const last = lastRects[i];
-            
+
             if (first && last) {
                 const deltaX = first.rect.left - last.rect.left;
                 const deltaY = first.rect.top - last.rect.top;
                 const deltaW = first.rect.width / last.rect.width;
                 const deltaH = first.rect.height / last.rect.height;
-                
+
                 view.element.style.transformOrigin = 'center center';
                 view.element.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaW}, ${deltaH})`;
                 view.element.style.transition = 'none';
-                
+
                 // Force reflow
                 view.element.offsetHeight;
-                
+
                 // Animate
                 animate({
                     from: { x: deltaX, y: deltaY, sx: deltaW, sy: deltaH },
@@ -604,29 +664,29 @@ class ResizeManager {
         const divider = document.createElement('div');
         divider.className = 'split-divider';
         divider.dataset.index = index;
-        
+
         divider.addEventListener('mousedown', (e) => this.startResize(e, index));
-        
+
         return divider;
     }
 
     startResize(e, index) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         this.isResizing = true;
         this.currentDivider = index;
         this.startX = e.clientX;
-        
+
         const tab = tabSystem.getActiveTab();
         if (!tab) return;
-        
+
         // Simpan flexBasis dari state
         this.startFlexBasis = tab.splitState.views.map(v => v.flexBasis);
-        
+
         // Tampilkan snap indicators
         this.showSnapIndicators();
-        
+
         document.body.style.cursor = 'col-resize';
         document.addEventListener('mousemove', this.onMouseMove);
         document.addEventListener('mouseup', this.onMouseUp);
@@ -634,27 +694,27 @@ class ResizeManager {
 
     onMouseMove = (e) => {
         if (!this.isResizing) return;
-        
+
         const container = document.getElementById('split-root');
         const containerWidth = container.offsetWidth;
         const delta = e.clientX - this.startX;
         const deltaPercent = (delta / containerWidth) * 100;
-        
+
         const leftBasis = this.startFlexBasis[this.currentDivider] + deltaPercent;
         const rightBasis = this.startFlexBasis[this.currentDivider + 1] - deltaPercent;
-        
+
         // Snap detection
         const tab = tabSystem.getActiveTab();
         if (!tab) return;
-        
+
         const snapPoints = tab.splitState.getSnapPoints();
         let snappedLeft = leftBasis;
         let snappedRight = rightBasis;
-        
+
         snapPoints.forEach(point => {
             const cumulativeWidth = this.startFlexBasis.slice(0, this.currentDivider + 1).reduce((a, b) => a + b, 0);
             const currentPos = cumulativeWidth + deltaPercent;
-            
+
             if (Math.abs(currentPos - point) < 3) {
                 const adjustment = point - cumulativeWidth;
                 snappedLeft = this.startFlexBasis[this.currentDivider] + adjustment;
@@ -662,13 +722,13 @@ class ResizeManager {
                 this.highlightSnapIndicator(point);
             }
         });
-        
+
         // Apply dengan minimum 10%
         if (snappedLeft >= 10 && snappedRight >= 10) {
             const views = container.querySelectorAll('.split-view');
             views[this.currentDivider].style.flex = `0 0 ${snappedLeft}%`;
             views[this.currentDivider + 1].style.flex = `0 0 ${snappedRight}%`;
-            
+
             // Update state juga
             tab.splitState.views[this.currentDivider].flexBasis = snappedLeft;
             tab.splitState.views[this.currentDivider + 1].flexBasis = snappedRight;
@@ -688,9 +748,9 @@ class ResizeManager {
         const container = document.getElementById('split-root');
         const tab = tabSystem.getActiveTab();
         if (!tab) return;
-        
+
         const snapPoints = tab.splitState.getSnapPoints();
-        
+
         snapPoints.forEach(point => {
             const indicator = document.createElement('div');
             indicator.className = 'snap-indicator';
@@ -723,6 +783,92 @@ const tabSystem = new TabSystem();
 const resizeManager = new ResizeManager();
 let isAiSidebarOpen = false;
 
+// Global Shortcuts (when focus is on UI, not Webview)
+document.addEventListener('keydown', (e) => {
+    console.log('Global Key Event:', e.key, 'Alt:', e.altKey, 'Ctrl:', e.ctrlKey);
+
+    // Back: Alt + Left
+    if (e.key === 'ArrowLeft' && e.altKey) {
+        console.log('Global Shortcut: Back');
+        const tab = tabSystem.getActiveTab();
+        if (tab) {
+            const activeView = tab.splitState.views.find(v => v.id === tab.splitState.activeViewId);
+            if (activeView && activeView.url) {
+                const wv = tab.webviewCache.get(activeView.id);
+                if (wv && wv.canGoBack()) {
+                    wv.goBack();
+                } else {
+                    console.log('Global: Webview cannot go back or not found');
+                }
+            }
+        }
+    }
+    // Forward: Alt + Right
+    else if (e.key === 'ArrowRight' && e.altKey) {
+        console.log('Global Shortcut: Forward');
+        const tab = tabSystem.getActiveTab();
+        if (tab) {
+            const activeView = tab.splitState.views.find(v => v.id === tab.splitState.activeViewId);
+            if (activeView && activeView.url) {
+                const wv = tab.webviewCache.get(activeView.id);
+                if (wv && wv.canGoForward()) {
+                    wv.goForward();
+                } else {
+                    console.log('Global: Webview cannot go forward or not found');
+                }
+            }
+        }
+    }
+    // Quit: Ctrl + Q
+    else if ((e.key === 'q' || e.key === 'Q') && e.ctrlKey) {
+        console.log('Global Shortcut: Quit');
+        window.electronAPI.quitApp();
+    }
+});
+
+// IPC Navigation Listeners (Native Menu)
+window.electronAPI.onNavBack(() => {
+    console.log('IPC Nav Back received');
+    const tab = tabSystem.getActiveTab();
+    if (tab) {
+        const activeView = tab.splitState.views.find(v => v.id === tab.splitState.activeViewId);
+        if (activeView && activeView.url) {
+            const wv = tab.webviewCache.get(activeView.id);
+            if (wv && wv.canGoBack()) {
+                wv.goBack();
+            }
+        }
+    }
+});
+
+window.electronAPI.onNavForward(() => {
+    console.log('IPC Nav Forward received');
+    const tab = tabSystem.getActiveTab();
+    if (tab) {
+        const activeView = tab.splitState.views.find(v => v.id === tab.splitState.activeViewId);
+        if (activeView && activeView.url) {
+            const wv = tab.webviewCache.get(activeView.id);
+            if (wv && wv.canGoForward()) {
+                wv.goForward();
+            }
+        }
+    }
+});
+
+window.electronAPI.onNavReload(() => {
+    console.log('IPC Nav Reload received');
+    const tab = tabSystem.getActiveTab();
+    if (tab) {
+        const activeView = tab.splitState.views.find(v => v.id === tab.splitState.activeViewId);
+        if (activeView && activeView.url) {
+            const wv = tab.webviewCache.get(activeView.id);
+            if (wv) {
+                wv.reload();
+            }
+        }
+    }
+});
+
 // ==================== RENDER FUNCTIONS ====================
 
 // Store tab containers to avoid recreation
@@ -732,37 +878,37 @@ function renderSplits() {
     const container = document.getElementById('split-root');
     const tab = tabSystem.getActiveTab();
     if (!tab) return;
-    
+
     // Hide all existing tab containers
     tabContainers.forEach((wrapper, tabId) => {
         wrapper.style.display = 'none';
     });
-    
+
     // Check if we already have a container for this tab
     let wrapper = tabContainers.get(tab.id);
-    
+
     if (!wrapper) {
         // Create new container for this tab
         wrapper = document.createElement('div');
         wrapper.className = 'splits-wrapper';
         wrapper.dataset.tabId = tab.id;
-        
+
         tab.splitState.views.forEach((view, index) => {
             // Create view element
             const viewEl = createViewElement(view, tab);
             wrapper.appendChild(viewEl);
-            
+
             // Create divider (kecuali untuk view terakhir)
             if (index < tab.splitState.views.length - 1) {
                 const divider = resizeManager.createDivider(index);
                 wrapper.appendChild(divider);
             }
         });
-        
+
         container.appendChild(wrapper);
         tabContainers.set(tab.id, wrapper);
     }
-    
+
     // Show the current tab's container
     wrapper.style.display = 'flex';
 }
@@ -772,10 +918,10 @@ function createViewElement(view, tab) {
     el.className = 'split-view' + (view.id === tab.splitState.activeViewId ? ' active' : '');
     el.dataset.viewId = view.id;
     el.style.flex = `0 0 ${view.flexBasis}%`;
-    
+
     const content = document.createElement('div');
     content.className = 'webview-wrapper';
-    
+
     if (!view.url) {
         // Placeholder
         content.innerHTML = `
@@ -791,7 +937,7 @@ function createViewElement(view, tab) {
     } else {
         // Webview
         const wv = tab.webviewCache.get(view.id, view.url);
-        
+
         // Add loading indicator
         const loadingId = 'loading-' + view.id;
         const loadingIndicator = document.createElement('div');
@@ -802,7 +948,7 @@ function createViewElement(view, tab) {
             <div class="loading-text">Loading...</div>
         `;
         content.appendChild(loadingIndicator);
-        
+
         // Remove loading when page finishes
         const removeLoading = () => {
             const loader = document.getElementById(loadingId);
@@ -811,13 +957,13 @@ function createViewElement(view, tab) {
                 setTimeout(() => loader.remove(), 300);
             }
         };
-        
+
         wv.addEventListener('did-stop-loading', removeLoading, { once: true });
         wv.addEventListener('did-fail-load', removeLoading, { once: true });
         setTimeout(removeLoading, 10000); // 10s fallback
-        
+
         content.appendChild(wv);
-        
+
         // Click overlay
         const overlay = document.createElement('div');
         overlay.className = 'view-click-overlay';
@@ -827,15 +973,15 @@ function createViewElement(view, tab) {
         });
         content.appendChild(overlay);
     }
-    
+
     el.appendChild(content);
-    
+
     // Hover effects
     el.addEventListener('mouseenter', () => {
         if (view.id !== tab.splitState.activeViewId) el.classList.add('hover');
     });
     el.addEventListener('mouseleave', () => el.classList.remove('hover'));
-    
+
     return el;
 }
 
@@ -844,21 +990,21 @@ function createViewElement(view, tab) {
 async function addSplit(direction) {
     const tab = tabSystem.getActiveTab();
     if (!tab) return;
-    
+
     if (tab.splitState.views.length >= 4) {
         showNotification('Maximum 4 panels');
         return;
     }
-    
+
     // Capture current state untuk FLIP
     const container = document.getElementById('split-root');
     const oldViews = Array.from(container.querySelectorAll('.split-view'));
     const firstRects = FLIPAnimator.captureRects(oldViews);
-    
+
     // Add new view
     const newView = tab.splitState.addView();
     if (!newView) return;
-    
+
     // Instead of re-rendering everything, just add the new view
     const wrapper = container.querySelector('.splits-wrapper');
     if (!wrapper) {
@@ -866,7 +1012,7 @@ async function addSplit(direction) {
         renderSplits();
         return;
     }
-    
+
     // Update flex basis for existing views
     tab.splitState.views.forEach((view, index) => {
         const viewEl = wrapper.querySelector(`[data-view-id="${view.id}"]`);
@@ -874,29 +1020,29 @@ async function addSplit(direction) {
             viewEl.style.flex = `0 0 ${view.flexBasis}%`;
         }
     });
-    
+
     // Create and append the new view
     const newViewEl = createViewElement(newView, tab);
-    
+
     // Add divider before the new view (if there are other views)
     if (tab.splitState.views.length > 1) {
         const divider = resizeManager.createDivider(tab.splitState.views.length - 2);
         wrapper.appendChild(divider);
     }
-    
+
     wrapper.appendChild(newViewEl);
-    
+
     // FLIP animation for new view
     FLIPAnimator.animateEntry(newViewEl);
-    
+
     // Animate layout change untuk views yang ada
     const updatedViews = tab.splitState.views.filter(v => v.id !== newView.id).map(v => ({
         element: wrapper.querySelector(`[data-view-id="${v.id}"]`),
         id: v.id
     })).filter(v => v.element);
-    
+
     FLIPAnimator.animateLayoutChange(updatedViews, firstRects);
-    
+
     // Activate new view
     activateView(newView.id);
 }
@@ -908,22 +1054,22 @@ async function closeSplit() {
         console.log('No active tab');
         return;
     }
-    
+
     console.log('Views count:', tab.splitState.views.length);
     if (tab.splitState.views.length <= 1) {
         showNotification('Cannot close last panel');
         return;
     }
-    
+
     const viewToClose = tab.splitState.activeViewId;
     console.log('Closing view:', viewToClose);
     const viewEl = document.querySelector(`[data-view-id="${viewToClose}"]`);
-    
+
     if (!viewEl) {
         console.log('View element not found in DOM');
         return;
     }
-    
+
     // Get the container
     const container = document.getElementById('split-root');
     const wrapper = container.querySelector('.splits-wrapper');
@@ -931,32 +1077,32 @@ async function closeSplit() {
         console.log('Wrapper not found');
         return;
     }
-    
+
     // Capture current state before any changes
     const oldViews = Array.from(wrapper.querySelectorAll('.split-view'));
     console.log('Old views count:', oldViews.length);
     const firstRects = FLIPAnimator.captureRects(oldViews);
-    
+
     // Find all dividers
     const dividers = Array.from(wrapper.querySelectorAll('.split-divider'));
     const viewIndex = tab.splitState.getViewIndex(viewToClose);
     console.log('View index:', viewIndex, 'Dividers count:', dividers.length);
-    
+
     // Store previous view ID before any changes
     const views = tab.splitState.views;
     const previousViewId = views[Math.max(0, viewIndex - 1)]?.id;
     console.log('Previous view ID:', previousViewId);
-    
+
     // Animate exit
     viewEl.style.opacity = '0';
     viewEl.style.transform = 'scale(0.9)';
     viewEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    
+
     // Use setTimeout to let the exit animation play
     setTimeout(() => {
         console.log('Removing view element...');
         viewEl.remove();
-        
+
         // Remove the appropriate divider
         if (viewIndex > 0 && viewIndex - 1 < dividers.length) {
             console.log('Removing divider at index:', viewIndex - 1);
@@ -965,14 +1111,14 @@ async function closeSplit() {
             console.log('Removing last divider');
             dividers[dividers.length - 1]?.remove();
         }
-        
+
         // Remove webview from cache
         tab.webviewCache.remove(viewToClose);
-        
+
         // Remove from state
         tab.splitState.removeView(viewToClose);
         console.log('Views after remove:', tab.splitState.views.length);
-        
+
         // Update flex basis for remaining views - CSS transition handles animation
         tab.splitState.views.forEach(view => {
             const el = wrapper.querySelector(`[data-view-id="${view.id}"]`);
@@ -980,12 +1126,12 @@ async function closeSplit() {
                 el.style.flex = `0 0 ${view.flexBasis}%`;
             }
         });
-        
+
         // Activate previous view
         if (previousViewId) {
             activateView(previousViewId);
         }
-        
+
         console.log('=== Split closed successfully ===');
     }, 300);
 }
@@ -993,13 +1139,13 @@ async function closeSplit() {
 function activateView(viewId) {
     const tab = tabSystem.getActiveTab();
     if (!tab) return;
-    
+
     if (!tab.splitState.setActiveView(viewId)) return;
-    
+
     document.querySelectorAll('.split-view').forEach(el => {
         el.classList.toggle('active', el.dataset.viewId === viewId);
     });
-    
+
     const view = tab.splitState.views.find(v => v.id === viewId);
     if (view) {
         document.getElementById('url-input').value = view.url || '';
@@ -1008,21 +1154,21 @@ function activateView(viewId) {
 
 function loadUrl(url) {
     console.log('Loading URL:', url);
-    
+
     const tab = tabSystem.getActiveTab();
     if (!tab) {
         console.error('No active tab');
         return;
     }
-    
+
     const view = tab.splitState.views.find(v => v.id === tab.splitState.activeViewId);
     if (!view) {
         console.error('No active view');
         return;
     }
-    
+
     view.url = url;
-    
+
     try {
         // Get the correct container for current tab
         const wrapper = tabContainers.get(tab.id);
@@ -1030,17 +1176,17 @@ function loadUrl(url) {
             console.error('No container found for tab:', tab.id);
             return;
         }
-        
+
         // Find view element within this tab's container
         const viewEl = wrapper.querySelector(`[data-view-id="${view.id}"]`);
         if (!viewEl) {
             console.error('View element not found in tab container');
             return;
         }
-        
+
         const content = viewEl.querySelector('.webview-wrapper');
         content.innerHTML = '';
-        
+
         // Create loading indicator with unique ID
         const loadingId = 'loading-' + view.id;
         const loadingIndicator = document.createElement('div');
@@ -1051,10 +1197,10 @@ function loadUrl(url) {
             <div class="loading-text">Loading...</div>
         `;
         content.appendChild(loadingIndicator);
-        
+
         // Create and attach webview
         const wv = tab.webviewCache.get(view.id, url);
-        
+
         // Add event to remove loading when done
         const removeLoading = () => {
             const loader = document.getElementById(loadingId);
@@ -1063,15 +1209,15 @@ function loadUrl(url) {
                 setTimeout(() => loader.remove(), 300);
             }
         };
-        
+
         wv.addEventListener('did-stop-loading', removeLoading, { once: true });
         wv.addEventListener('did-fail-load', removeLoading, { once: true });
-        
+
         // Timeout fallback 10 seconds
         setTimeout(removeLoading, 10000);
-        
+
         content.appendChild(wv);
-        
+
         // Now load URL after attached to DOM
         console.log('Webview attached, loading URL:', url);
         setTimeout(() => {
@@ -1083,7 +1229,7 @@ function loadUrl(url) {
                 removeLoading();
             }
         }, 100);
-        
+
         const overlay = document.createElement('div');
         overlay.className = 'view-click-overlay';
         overlay.addEventListener('click', (e) => {
@@ -1091,7 +1237,7 @@ function loadUrl(url) {
             activateView(view.id);
         });
         content.appendChild(overlay);
-        
+
         console.log('View updated successfully');
     } catch (error) {
         console.error('Error loading URL:', error);
@@ -1111,21 +1257,21 @@ function createTabButton(tabId) {
     const btn = document.createElement('div');
     btn.className = 'tab' + (tabId === tabSystem.activeTabId ? ' active' : '');
     btn.dataset.tabId = tabId;
-    
+
     // Tab icon based on URL
     const tabIcon = document.createElement('img');
     tabIcon.className = 'tab-icon';
     tabIcon.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
     tabIcon.alt = 'Tab';
     btn.appendChild(tabIcon);
-    
+
     // Click to switch tab
     btn.addEventListener('click', () => switchTab(tabId));
-    
+
     const tabBar = document.getElementById('tab-bar');
     const addBtn = tabBar.querySelector('.add-tab-btn');
     tabBar.insertBefore(btn, addBtn);
-    
+
     // Update active class on all tabs
     updateTabButtons();
 }
@@ -1140,10 +1286,10 @@ function updateTabButtons() {
 function switchTab(tabId) {
     const tab = tabSystem.switchTab(tabId);
     if (!tab) return;
-    
+
     updateTabButtons();
     renderSplits();
-    
+
     // Update URL input
     const view = tab.splitState.views.find(v => v.id === tab.splitState.activeViewId);
     if (view) {
@@ -1156,7 +1302,7 @@ function addNewTab() {
     createTabButton(newTab.id);
     switchTab(newTab.id);
     renderSplits();
-    
+
     // Focus URL input for new tab
     setTimeout(() => {
         const urlInput = document.getElementById('url-input');
@@ -1169,35 +1315,35 @@ function addNewTab() {
 
 function closeTab(tabId) {
     const tabToClose = tabId || tabSystem.activeTabId;
-    
+
     // Don't close if it's the last tab
     if (tabSystem.tabs.length <= 1) {
         showNotification('Cannot close last tab');
         return;
     }
-    
+
     // Find the tab to close
     const tabIndex = tabSystem.tabs.findIndex(t => t.id === tabToClose);
     if (tabIndex === -1) return;
-    
+
     // Determine which tab to activate next
     const nextTabIndex = tabIndex > 0 ? tabIndex - 1 : 0;
     const nextTabId = tabSystem.tabs[nextTabIndex]?.id;
-    
+
     // Remove tab container from DOM
     const container = tabContainers.get(tabToClose);
     if (container) {
         container.remove();
         tabContainers.delete(tabToClose);
     }
-    
+
     // Remove tab from system
     tabSystem.tabs.splice(tabIndex, 1);
-    
+
     // Remove tab button
     const btn = document.querySelector(`.tab[data-tab-id="${tabToClose}"]`);
     if (btn) btn.remove();
-    
+
     // If we closed the active tab, switch to the next one
     if (tabToClose === tabSystem.activeTabId && nextTabId) {
         tabSystem.activeTabId = nextTabId;
@@ -1207,7 +1353,7 @@ function closeTab(tabId) {
         updateTabButtons();
         renderSplits();
     }
-    
+
     console.log(`Closed tab: ${tabToClose}`);
 }
 
@@ -1218,10 +1364,10 @@ function closeCurrentTab() {
 function updateTabIcon(tabId, url) {
     const tabBtn = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
     if (!tabBtn) return;
-    
+
     const tabIcon = tabBtn.querySelector('.tab-icon');
     if (!tabIcon) return;
-    
+
     // Get favicon from URL
     try {
         const urlObj = new URL(url);
@@ -1241,16 +1387,16 @@ function showNotification(text) {
     n.textContent = text;
     n.style.cssText = 'position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(168,85,247,0.95); color: white; padding: 10px 20px; border-radius: 8px; z-index: 10100; font-size: 13px; opacity: 0;';
     document.body.appendChild(n);
-    
+
     // Simple CSS animation fallback
     n.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    
+
     // Trigger animation
     requestAnimationFrame(() => {
         n.style.opacity = '1';
         n.style.transform = 'translateX(-50%) translateY(0)';
     });
-    
+
     setTimeout(() => {
         n.style.opacity = '0';
         setTimeout(() => n.remove(), 300);
@@ -1267,12 +1413,12 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.log('Popmotion loaded successfully');
     }
-    
+
     createInitialTab();
     setupEventListeners();
     setupSensorLogic();
     createParticles();
-    
+
     // Animate body fade in
     if (animate && typeof animate === 'function') {
         try {
@@ -1281,7 +1427,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 to: 1,
                 duration: 500
             });
-            
+
             if (animation && typeof animation.start === 'function') {
                 animation.start(v => {
                     document.body.style.opacity = v;
@@ -1302,19 +1448,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setupEventListeners() {
     const urlInput = document.getElementById('url-input');
-    
+
     urlInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             let url = urlInput.value.trim();
             if (!url) return;
-            
+
             console.log('URL Input:', url);
-            
+
             // Better URL detection
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 // Check if it's a domain (contains dot and no spaces)
                 const isDomain = /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(url);
-                
+
                 if (isDomain || url.includes('.') && !url.includes(' ')) {
                     url = 'https://' + url;
                     console.log('Detected as domain, adding https:', url);
@@ -1323,15 +1469,15 @@ function setupEventListeners() {
                     console.log('Detected as search query:', url);
                 }
             }
-            
+
             console.log('Final URL:', url);
             loadUrl(url);
             urlInput.blur();
         }
     });
-    
+
     document.getElementById('split-v')?.addEventListener('click', () => addSplit('vertical'));
-    
+
     // Close split button - with explicit check
     const closeBtn = document.getElementById('split-close');
     if (closeBtn) {
@@ -1346,33 +1492,34 @@ function setupEventListeners() {
         console.error('Close split button NOT found!');
     }
     document.querySelector('.add-tab-btn')?.addEventListener('click', addNewTab);
-    
+
     document.getElementById('ai-toggle-btn')?.addEventListener('click', () => {
         const sb = document.getElementById('ai-sidebar');
         isAiSidebarOpen = !isAiSidebarOpen;
         sb.classList.toggle('open', isAiSidebarOpen);
+        document.body.classList.toggle('sidebar-open', isAiSidebarOpen);
     });
-    
+
     // Settings panel toggle
     const settingsTrigger = document.getElementById('settings-trigger');
     const settingsPanel = document.getElementById('settings-panel');
     const closeSettings = document.getElementById('close-settings');
-    
+
     if (settingsTrigger && settingsPanel) {
         settingsTrigger.addEventListener('click', () => {
             settingsPanel.classList.toggle('open');
         });
     }
-    
+
     if (closeSettings && settingsPanel) {
         closeSettings.addEventListener('click', () => {
             settingsPanel.classList.remove('open');
         });
     }
-    
+
     document.addEventListener('keydown', (e) => {
         const ctrl = e.ctrlKey || e.metaKey;
-        
+
         if (ctrl && e.key === 't') {
             e.preventDefault();
             addNewTab();
@@ -1440,13 +1587,13 @@ function setupSensorLogic() {
     const topSensor = document.getElementById('top-sensor');
     const topZone = document.getElementById('top-zone');
     let topTimer;
-    
+
     console.log('Setting up sensor logic...');
     console.log('Top sensor found:', !!topSensor);
     console.log('Top zone found:', !!topZone);
     console.log('Bottom sensor found:', !!document.getElementById('bottom-sensor'));
     console.log('Bottom zone found:', !!document.getElementById('bottom-zone'));
-    
+
     topSensor?.addEventListener('mouseenter', (e) => {
         console.log('Top sensor mouseenter triggered');
         if (topSensor) topSensor.classList.add('active');
@@ -1458,7 +1605,7 @@ function setupSensorLogic() {
         }
         clearTimeout(topTimer);
     });
-    
+
     topSensor?.addEventListener('mouseleave', () => {
         console.log('Top sensor mouseleave triggered');
         topTimer = setTimeout(() => {
@@ -1472,12 +1619,12 @@ function setupSensorLogic() {
             }
         }, 300);
     });
-    
+
     topZone?.addEventListener('mouseenter', () => {
         console.log('Top zone mouseenter triggered');
         clearTimeout(topTimer);
     });
-    
+
     topZone?.addEventListener('mouseleave', () => {
         console.log('Top zone mouseleave triggered');
         if (document.activeElement === document.getElementById('url-input')) return;
@@ -1491,12 +1638,12 @@ function setupSensorLogic() {
             if (topSensor) topSensor.classList.remove('active');
         }, 500);
     });
-    
+
     // Bottom sensor logic
     const bottomSensor = document.getElementById('bottom-sensor');
     const bottomZone = document.getElementById('bottom-zone');
     let bottomTimer;
-    
+
     bottomSensor?.addEventListener('mouseenter', () => {
         console.log('Bottom sensor mouseenter triggered');
         if (bottomSensor) bottomSensor.classList.add('active');
@@ -1508,7 +1655,7 @@ function setupSensorLogic() {
         }
         clearTimeout(bottomTimer);
     });
-    
+
     bottomSensor?.addEventListener('mouseleave', () => {
         console.log('Bottom sensor mouseleave triggered');
         bottomTimer = setTimeout(() => {
@@ -1522,12 +1669,12 @@ function setupSensorLogic() {
             }
         }, 300);
     });
-    
+
     bottomZone?.addEventListener('mouseenter', () => {
         console.log('Bottom zone mouseenter triggered');
         clearTimeout(bottomTimer);
     });
-    
+
     bottomZone?.addEventListener('mouseleave', () => {
         console.log('Bottom zone mouseleave triggered');
         bottomTimer = setTimeout(() => {
@@ -1545,7 +1692,7 @@ function setupSensorLogic() {
 function createParticles() {
     const container = document.getElementById('particles-container');
     if (!container) return;
-    
+
     for (let i = 0; i < 24; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
@@ -1592,13 +1739,13 @@ setInterval(logCacheStats, 120000);
 // Add keyboard shortcuts for debugging
 document.addEventListener('keydown', (e) => {
     const ctrl = e.ctrlKey || e.metaKey;
-    
+
     // Ctrl+Shift+M: Show memory stats
     if (ctrl && e.shiftKey && e.key === 'M') {
         e.preventDefault();
         logCacheStats();
     }
-    
+
     // Ctrl+Shift+G: Force garbage collection
     if (ctrl && e.shiftKey && e.key === 'G') {
         e.preventDefault();
